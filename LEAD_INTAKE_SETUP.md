@@ -34,7 +34,7 @@ After durable storage, return a 2xx JSON response:
 {"ok":true,"lead_id":"your-stored-record-id","received_at":"2026-10-29T18:00:00.000Z"}
 ```
 
-Return non-2xx on failure; do not acknowledge a merely queued job as a stored lead. A 2xx without the above receipt, HTML, redirects, network/CORS errors or a 15-second timeout show an error, preserve the typed details and fire no conversion. Retrying within the page reuses the submission ID. Reloading creates a new ID. The page cannot prove storage if the receiver falsely acknowledges it; verify the destination record below.
+Return non-2xx on failure; do not acknowledge a merely queued job as a stored lead. A 2xx without the above receipt, HTML, redirects, network/CORS errors or a 15-second timeout show an error, preserve the typed details and fire no conversion. Retrying identical application details within the page reuses the submission ID and original browser timestamp. Editing company, email, budget or consent text creates a new application ID. This cannot amend or erase a prior request that may already have been stored before its response was lost; the receiver may contain both versions. Reloading creates a new ID. The page cannot prove storage if the receiver falsely acknowledges it; verify the destination record below.
 
 Only a confirmed receipt fires `verified_lead_submitted` once. Existing `landing_view` and CTA events remain non-conversion events. Contact details and consent are excluded from the dataLayer. There is still no external analytics destination configured.
 

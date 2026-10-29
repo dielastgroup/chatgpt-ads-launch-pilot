@@ -194,6 +194,7 @@ test('retry keeps contact details and reuses the submission ID for receiver dedu
   await until(() => f.status.dataset.state === 'success');
   assert.equal(payloads.length, 2);
   assert.equal(payloads[0].submission_id, payloads[1].submission_id);
+  assert.deepEqual(payloads[0], payloads[1]);
   assert.equal(payloads[1].email, validLead.email);
   assert.equal(conversions(f.win).length, 1);
   f.dom.window.close();
@@ -206,6 +207,28 @@ test('analytics failure cannot turn a received application into an error', async
   f.submit();
   await until(() => f.status.dataset.state === 'success');
   assert.equal(f.form.querySelector('fieldset').disabled, true);
+  f.dom.window.close();
+});
+
+test('edited application after an uncertain response gets a new deduplication ID', async () => {
+  const stored = new Map();
+  const payloads = [];
+  const f = fixture({ fetchImpl: async (_, options) => {
+    const payload = JSON.parse(options.body);
+    payloads.push(payload);
+    if (!stored.has(payload.submission_id)) stored.set(payload.submission_id, payload);
+    if (payloads.length === 1) throw new TypeError('Response lost after storage');
+    return response();
+  } });
+  f.fill();
+  f.submit();
+  await until(() => f.status.dataset.state === 'error');
+  f.field('email').value = 'corrected@example.test';
+  f.submit();
+  await until(() => f.status.dataset.state === 'success');
+  assert.notEqual(payloads[0].submission_id, payloads[1].submission_id);
+  assert.equal(stored.get(payloads[1].submission_id).email, 'corrected@example.test');
+  assert.equal(conversions(f.win).length, 1);
   f.dom.window.close();
 });
 

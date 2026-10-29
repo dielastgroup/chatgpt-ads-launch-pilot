@@ -69,7 +69,9 @@ export function mountLeadForm({ form, status, endpoint, win = window, doc = docu
   const available = validEndpoint(endpoint);
   let pending = false;
   let completed = false;
-  const submissionId = win.crypto.randomUUID();
+  let submissionId = win.crypto.randomUUID();
+  let previousApplication = null;
+  let submittedAt;
   fields.disabled = !available;
   status.dataset.state = available ? 'ready' : 'unavailable';
   status.textContent = available ? 'Submit your application securely. We will contact you about the sprint; this does not subscribe you to a newsletter.' : UNAVAILABLE;
@@ -86,9 +88,18 @@ export function mountLeadForm({ form, status, endpoint, win = window, doc = docu
       form.reportValidity();
       return;
     }
+    const consentText = form.querySelector('[data-consent-text]').textContent.trim();
+    const application = JSON.stringify({ ...lead, consent_text: consentText });
+    // A receiver may already have stored a request whose response was lost.
+    // Reuse its ID only for identical content; edits represent a new application.
+    if (application !== previousApplication) {
+      if (previousApplication !== null) submissionId = win.crypto.randomUUID();
+      submittedAt = new Date().toISOString();
+      previousApplication = application;
+    }
     const payload = { ...lead, ...attribution, submission_id: submissionId,
-      submitted_at: new Date().toISOString(), consent_version: 'application-contact-v1',
-      consent_text: form.querySelector('[data-consent-text]').textContent.trim() };
+      submitted_at: submittedAt, consent_version: 'application-contact-v1',
+      consent_text: consentText };
     pending = true;
     fields.disabled = true;
     form.setAttribute('aria-busy', 'true');
