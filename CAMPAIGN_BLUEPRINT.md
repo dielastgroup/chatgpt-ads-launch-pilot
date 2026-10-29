@@ -18,8 +18,8 @@ B: Headline: Already Buying Google or Meta Ads? Body: Explore a measurable ChatG
 C: Headline: Test ChatGPT Ads Without Hiring. Body: A focused campaign launch package for businesses with proven offers. Account and spend stay yours.
 
 ## Tracked funnel
-landing_view -> cta_hero / cta_offer -> lead_email_intent -> verified_lead_submitted [NOT YET CONNECTED] -> booked_call [NOT YET CONNECTED] -> paid_client [NOT YET CONNECTED].
-The static preview records client-side dataLayer only; no analytics destination configured. The email-intent button only opens a draft, cannot establish lead completion. No third-party pixels, CAPI, hashed emails, server events or payment links have been configured.
+landing_view -> cta_hero / cta_offer -> verified_lead_submitted [REQUIRES CONFIGURED RECEIVER AND CONFIRMED RECEIPT] -> booked_call [NOT YET CONNECTED] -> paid_client [NOT YET CONNECTED].
+The page records client-side dataLayer only; no analytics destination configured. Application capture posts to the single LEAD_ENDPOINT config value and counts a lead only after a successful server receipt. The config is intentionally empty until a compatible owned receiver is verified; the form then displays an explicit unavailable state and sends nothing. See LEAD_INTAKE_SETUP.md. No third-party pixels, CAPI, hashed emails, server events or payment links have been configured.
 
 ## Preflight to move from preview to revenue
 1. Confirm brand domain, contact inbox / working form receiver; test receiving a real submission.
